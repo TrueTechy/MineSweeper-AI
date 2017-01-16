@@ -29,9 +29,56 @@ class Field:
                         if (random.randint(0, 100) < 2):
                             if(self.board[row][column].containsMine==False):
                                 self.board[row][column].containsMine = True
+                                self.board[row][column].opened = True
                                 self.noOfMines = self.noOfMines - 1
                                 if(self.noOfMines==0):
-                                    return
+                                   self.calculateNearbyMines()
+
+    def calculateNearbyMines(self):
+        for row in range(0, self.height):
+            for column in range(0, self.width):
+                nearbyMines = 0
+
+                #TOP
+                if(row==0):
+                    break
+                else:
+                    if(column>0):
+                        if(self.board[row-1][column-1].containsMine==1):
+                            nearbyMines = nearbyMines + 1
+                    #CENTRE
+                    if (self.board[row - 1][column].containsMine == 1):
+                        nearbyMines = nearbyMines + 1
+                    #RIGHT
+                    if(column<self.width-1):
+                        if (self.board[row - 1][column + 1].containsMine == 1):
+                            nearbyMines = nearbyMines + 1
+
+                #MIDDLE
+                if(0 <  column < self.width -1):
+                    #LEFT
+                    if (self.board[row][column - 1].containsMine == 1):
+                        nearbyMines = nearbyMines + 1
+                    #RIGHT
+                    if (self.board[row][column + 1].containsMine == 1):
+                        nearbyMines = nearbyMines + 1
+
+                #BOTTOM
+                if (row < self.height-2):
+                    if (column > 0):
+                        if (self.board[row + 1][column - 1].containsMine == 1):
+                            nearbyMines = nearbyMines + 1
+                    # CENTRE
+                    print("("+str(row)+","+str(column)+")")
+                    if (self.board[row + 1][column].containsMine == 1):
+                        nearbyMines = nearbyMines + 1
+                    # RIGHT
+                    if (column < self.width - 1):
+                        if (self.board[row + 1][column + 1].containsMine == 1):
+                            nearbyMines = nearbyMines + 1
+
+                self.board[row][column].nearbyMines = nearbyMines
+
 
 
     def showMines(self):
@@ -52,6 +99,7 @@ class Box(Field):
         self.gameField = field
         self.button = Button(frame, width=2, height=1)
         self.button.config(bg="white smoke")
+        self.button.config(relief=GROOVE)
         self.row = row
         self.column = column
         self.button.grid(row=row, column=column)
@@ -61,27 +109,37 @@ class Box(Field):
         ## TODO: Calculate nearby mines somehow
 
     def openBox(self, event):
-        if(self.flagged==True):
-            return
-        self.opened = True
-        if(self.containsMine==True):
-            print("Game Over")
-        elif(self.nearbyMines==0):
-            ## open box and scan for nearby boxes to open
-            return
+        if(self.flagged==True or self.opened==True):
+            return 0
         else:
-            ## Reveal Number
-            print(self.nearbyMines)
-            return
+            self.opened = True
+            if(self.containsMine==True):
+                print("Game Over")
+            elif(self.nearbyMines==0):
+                ## open box and scan for nearby boxes to open
+                print("No nearby mines")
+                return
+            else:
+                self.button.config(relief=SUNKEN)
+                self.button.config(text=self.nearbyMines)
+                self.button.config(bg="snow")
+                self.button.config(state=DISABLED)
+                print(self.nearbyMines)
+                return
 
     def flagBox(self, event):
-        if(self.opened==False and self.flagged==False):
-            self.flagged = True
-            self.button.config(bg = "red")
-            return
-        elif(self.opened==FALSE and self.flagged==True):
-            self.flagged = False
-            self.button.config(bg="white smoke")
+        if(self.opened==True):
+            return 0
+        else:
+            if(self.flagged==False):
+                self.flagged = True
+                self.button.config(bg = "red")
+                self.button.config(state=DISABLED)
+                return
+            elif(self.flagged==True):
+                self.flagged = False
+                self.button.config(bg="white smoke")
+                self.button.config(state=NORMAL)
 
 
 # Create base window
@@ -99,3 +157,4 @@ gameField = Field(base)
 gameField.showMines()
 
 base.mainloop()
+
