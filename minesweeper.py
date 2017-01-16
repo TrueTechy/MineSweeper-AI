@@ -8,9 +8,9 @@ def doNothing(feature):
 class Field:
 
     board=[]
-    height = 5
-    width = 5
-    noOfMines = 20
+    height = 10
+    width = 10
+    noOfMines = 15
 
     def __init__(self, base):
         fieldFrame = Frame(base)
@@ -64,18 +64,16 @@ class Box(Field):
         total = []
 
         #top
-        for i in [0, 1, -1]:
-            try:
-                total.append(Field.board[self.row - 1][self.column + i].containsMine)
-            except IndexError:
-                pass
+        if self.row != 0:
+            if self.column != Field.width - 1: total.append(Field.board[self.row - 1][self.column + 1].containsMine)
+            total.append(Field.board[self.row - 1][self.column].containsMine)
+            if self.column != 0: total.append(Field.board[self.row - 1][self.column - 1].containsMine)
 
         #bottom
-        for i in [0, 1, -1]:
-            try:
-                total.append(Field.board[self.row + 1][self.column + i].containsMine)
-            except IndexError:
-                pass
+        if self.row != Field.height - 1:
+            total.append(Field.board[self.row + 1][self.column].containsMine)
+            if self.column != Field.width - 1: total.append(Field.board[self.row + 1][self.column + 1].containsMine)
+            if self.column != 0: total.append(Field.board[self.row + 1][self.column - 1].containsMine)
 
         #left
         if self.column > 0: total.append(Field.board[self.row][self.column - 1].containsMine)
@@ -83,6 +81,7 @@ class Box(Field):
         #right
         if self.column < Field.width - 1: total.append(Field.board[self.row][self.column + 1].containsMine)
 
+        print(total)
         total = sum(total)
         print("Total Number of Mines: {}".format(total))
         return total
@@ -94,11 +93,12 @@ class Box(Field):
             return 0
         else:
             self.opened = True
-            if(self.containsMine==True):
+            if(Field.board[self.row][self.column].containsMine==True):
                 print("Game Over")
             elif(not x):
                 ## open box and scan for nearby boxes to open
                 print("No nearby mines")
+                self.button.config(bg="green")
                 return
             else:
                 x = self.number_mines()
