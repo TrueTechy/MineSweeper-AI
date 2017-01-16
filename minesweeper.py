@@ -8,9 +8,9 @@ def doNothing(feature):
 class Field:
 
     board=[]
-    height = 10
-    width = 10
-    noOfMines = 50
+    height = 5
+    width = 5
+    noOfMines = 20
 
     def __init__(self, base):
         fieldFrame = Frame(base)
@@ -64,21 +64,18 @@ class Box(Field):
         total = []
 
         #top
-        if self.row > 0:
-            if self.row < Field.height - 1:
-                for i in [0, 1, -1]:
-                    try:
-                        total.append(Field.board[self.row - 1][self.column + i].containsMine)
-                    except IndexError:
-                        pass
+        for i in [0, 1, -1]:
+            try:
+                total.append(Field.board[self.row - 1][self.column + i].containsMine)
+            except IndexError:
+                pass
 
         #bottom
-        if self.row < Field.height - 1:
-            for i in [0, 1, -1]:
-                try:
-                    total.append(Field.board[self.row + 1][self.column + i].containsMine)
-                except IndexError:
-                    pass
+        for i in [0, 1, -1]:
+            try:
+                total.append(Field.board[self.row + 1][self.column + i].containsMine)
+            except IndexError:
+                pass
 
         #left
         if self.column > 0: total.append(Field.board[self.row][self.column - 1].containsMine)
@@ -109,7 +106,6 @@ class Box(Field):
                 self.button.config(text=x)
                 self.button.config(bg="snow")
                 self.button.config(state=DISABLED)
-                print(self.nearbyMines)
                 return
 
     def flagBox(self, event):
